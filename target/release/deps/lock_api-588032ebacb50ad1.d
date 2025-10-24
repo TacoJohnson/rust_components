@@ -1,0 +1,10 @@
+C:\Users\OcellusLDS\Documents\LDS\RUST INTEGRATION\PyLDS\universal_instrument_control\rust_components\target\release\deps\lock_api-588032ebacb50ad1.d: C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\lib.rs C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\mutex.rs C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\remutex.rs C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\rwlock.rs
+
+C:\Users\OcellusLDS\Documents\LDS\RUST INTEGRATION\PyLDS\universal_instrument_control\rust_components\target\release\deps\liblock_api-588032ebacb50ad1.rlib: C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\lib.rs C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\mutex.rs C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\remutex.rs C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\rwlock.rs
+
+C:\Users\OcellusLDS\Documents\LDS\RUST INTEGRATION\PyLDS\universal_instrument_control\rust_components\target\release\deps\liblock_api-588032ebacb50ad1.rmeta: C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\lib.rs C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\mutex.rs C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\remutex.rs C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\rwlock.rs
+
+C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\lib.rs:
+C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\mutex.rs:
+C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\remutex.rs:
+C:\Users\OcellusLDS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\lock_api-0.4.13\src\rwlock.rs:

@@ -1,0 +1,52 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "dsql-decoder"
+version = "0.1.0"
+description = "High-performance DSQL file decoder - pyfg replacement"
+authors = [{name = "Universal Instrument Control Team"}]
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Rust",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "numpy>=1.20.0,<2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0.0",
+    "pytest-benchmark>=3.4.0",
+    "maturin>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-org/universal-instrument-control"
+Repository = "https://github.com/your-org/universal-instrument-control"
+
+[tool.maturin]
+python-source = "python"
+module-name = "dsql_decoder"
+features = ["pyo3/extension-module"]
+
+# Development profile for faster builds
+[tool.maturin.dev]
+profile = "dev"
+
+# Release profile for distribution
+[tool.maturin.release]
+profile = "release"
+strip = true

@@ -1,0 +1,27 @@
+[package]
+name = "dsql_decoder"
+version = "0.1.0"
+edition = "2021"
+description = "High-performance DSQL file decoder for Python - pyfg replacement"
+
+[lib]
+name = "dsql_decoder"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { workspace = true }
+numpy = { workspace = true }
+shared = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+
+# [dev-dependencies]
+# tempfile = { workspace = true }
+
+# Python extension specific optimizations
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true  # Strip debug symbols for smaller binary

@@ -1,0 +1,78 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "shared",
+    "framegrabber", 
+    "dsql_decoder"
+]
+
+# Shared dependencies across all workspace members
+[workspace.dependencies]
+# Core Rust dependencies
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+thiserror = "2.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Networking and async
+crossbeam-channel = "0.5"
+bytes = "1.0"
+socket2 = "0.5"
+
+# Utilities
+hex = "0.4"
+base64 = "0.21"
+num-traits = "0.2"
+chrono = "0.4"
+
+# Python integration (for dsql_decoder)
+pyo3 = { version = "0.22", features = ["extension-module"] }
+numpy = "0.22"
+
+# GUI (for framegrabber)
+eframe = "0.32"
+egui = "0.32"
+
+# Configuration
+toml = "0.9"
+serde_ini = "0.2"
+clap = { version = "4.0", features = ["derive"] }
+
+# System integration
+ctrlc = "3.0"
+
+[workspace.dependencies.shared]
+path = "shared"
+
+# Testing and development
+tempfile = "3.0"
+
+# Development dependencies
+[workspace.dev-dependencies]
+tempfile = "3.0"
+criterion = "0.5"
+
+# Optimization profiles
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+opt-level = 0
+debug = true
+overflow-checks = true
+
+# Profile for Python extension development
+[profile.dev-python]
+inherits = "dev"
+opt-level = 1  # Slightly optimized for better Python performance during development
+
+[profile.release-python]
+inherits = "release"
+debug = true  # Keep debug info for better Python stack traces
