@@ -17,6 +17,7 @@ use shared::frame::Frame;
 use shared::coordinates::FieldWhitelist;
 use serde_json;
 use chrono::Local;
+use crate::frame_sync::FrameSyncEngine;
 
 /// Simple framegrabber that matches the C implementation approach:
 /// 1. UDP receiver thread: UDP packets -> continuous buffer
@@ -258,6 +259,7 @@ impl SimpleFrameGrabber {
     }
 
     /// File writer thread - supports both file saving and live output modes
+    /// Uses count-based frame synchronization instead of signature-based detection
     fn file_writer_thread(
         output_dir: String,
         data_rx: Receiver<Vec<u8>>,
@@ -284,104 +286,58 @@ impl SimpleFrameGrabber {
         };
 
         let mut buffer = Vec::new();
-        let mut hword_buffer = Vec::new();
-        let mut hwords_in_frame = 0;
         let mut total_hwords_processed = 0u64;
         let mut file_write_errors = 0u64;
-        let mut synchronized = false; // Track if we've found the first frame boundary
+
+        // Create frame synchronization engine
+        let mut sync_engine = FrameSyncEngine::new();
 
         info!("📝 File writer thread started (save_files: {}, live_output: {}, decode_mode: {})", save_files, live_output, decode_mode);
+        info!("🔧 Using count-based frame synchronization");
 
         while running.load(Ordering::SeqCst) || !data_rx.is_empty() {
             // Receive data with timeout
             match data_rx.recv_timeout(Duration::from_millis(100)) {
                 Ok(mut packet_data) => {
-                    // Append to continuous buffer (like C version)
+                    // Append to continuous buffer
                     buffer.append(&mut packet_data);
 
-                    // If not synchronized, search for first frame boundary (like C's FG_IDLE state)
-                    if !synchronized {
-                        const FIRST_HDR_TAIL: &[u8] = &[0xF8, 0xDD, 0x42, 0x59];
-
-                        // Search for signature in the buffer
-                        while buffer.len() >= 12 {
-                            // Check if current position has the signature at bytes 8-11
-                            if buffer.len() >= 12 && &buffer[8..12] == FIRST_HDR_TAIL {
-                                // Also verify control_bits == 2
-                                let control_bits = (buffer[0] >> 5) & 0x07;
-                                if control_bits == 2 {
-                                    info!("🔒 SYNCHRONIZED: Found first frame boundary at buffer position");
-                                    synchronized = true;
-                                    break;
-                                }
-                            }
-
-                            // No match - shift buffer by 1 byte and try again (like C version)
-                            buffer.drain(0..1);
-                        }
-
-                        if !synchronized {
-                            continue; // Wait for more data
-                        }
-                    }
-
-                    // Process 12-byte chunks and parse HWORDs like the old C version
+                    // Process 12-byte chunks using count-based synchronization
                     while buffer.len() >= 12 {
                         // Extract 12-byte chunk
-                        let chunk: Vec<u8> = buffer.drain(0..12).collect();
+                        let chunk: [u8; 12] = buffer.drain(0..12)
+                            .collect::<Vec<u8>>()
+                            .try_into()
+                            .expect("Chunk should be exactly 12 bytes");
+
                         total_hwords_processed += 1;
 
-                        // Parse control bits from the HWORD (like old C version)
-                        let control_bits = (chunk[0] >> 5) & 0x07;
+                        // Process HWORD through synchronization engine
+                        if let Some(frame_data) = sync_engine.process_hword(&chunk) {
+                            // Frame complete! Write it immediately
+                            let hwords_in_frame = frame_data.len() / 12;
 
-                        match control_bits {
-                            2 => { // FirstHeader (010) - need to check signature like C version
-                                // Check for FIRST_HDR_TAIL signature in bytes 8-11 (like C version does)
-                                const FIRST_HDR_TAIL: &[u8] = &[0xF8, 0xDD, 0x42, 0x59];
-                                let has_signature = &chunk[8..12] == FIRST_HDR_TAIL;
+                            // Handle live output if enabled
+                            if live_output {
+                                Self::output_live_frame(&frame_data, frame_counter, hwords_in_frame, decode_mode)?;
+                            }
 
-                                if has_signature {
-                                    // This is a real frame boundary - complete previous frame if any
-                                    if !hword_buffer.is_empty() {
-                                    // Handle live output if enabled
-                                    if live_output {
-                                        Self::output_live_frame(&hword_buffer, frame_counter, hwords_in_frame, decode_mode)?;
+                            // Handle file saving if enabled
+                            if save_files {
+                                let filename = format!("{}/{:08X}.dsql", output_dir, frame_counter);
+                                match std::fs::write(&filename, &frame_data) {
+                                    Ok(_) => {
+                                        info!("✅ Completed frame file: {} ({} HWORDs, {:.1} KB)",
+                                              filename, hwords_in_frame, frame_data.len() as f64 / 1024.0);
                                     }
-
-                                    // Handle file saving if enabled
-                                    if save_files {
-                                        let filename = format!("{}/{:08X}.dsql", output_dir, frame_counter);
-                                        match std::fs::write(&filename, &hword_buffer) {
-                                            Ok(_) => {
-                                                info!("Completed frame file: {} ({} HWORDs, {:.1} KB)",
-                                                      filename, hwords_in_frame, hword_buffer.len() as f64 / 1024.0);
-                                            }
-                                            Err(e) => {
-                                                error!("Failed to write frame file {}: {}", filename, e);
-                                                file_write_errors += 1;
-                                            }
-                                        }
+                                    Err(e) => {
+                                        error!("❌ Failed to write frame file {}: {}", filename, e);
+                                        file_write_errors += 1;
                                     }
-
-                                        frame_counter += 1;
-                                    }
-
-                                    // Start new frame
-                                    hword_buffer.clear();
-                                    hword_buffer.extend_from_slice(&chunk);
-                                    hwords_in_frame = 1;
-                                } else {
-                                    // FirstHeader control bits but no signature - just regular data
-                                    // Add to current frame like any other HWORD
-                                    hword_buffer.extend_from_slice(&chunk);
-                                    hwords_in_frame += 1;
                                 }
                             }
-                            _ => {
-                                // Add to current frame
-                                hword_buffer.extend_from_slice(&chunk);
-                                hwords_in_frame += 1;
-                            }
+
+                            frame_counter += 1;
                         }
                     }
                 }
@@ -396,31 +352,35 @@ impl SimpleFrameGrabber {
             }
         }
 
-        // Write final partial frame if any data remains
-        if !hword_buffer.is_empty() {
-            if live_output {
-                Self::output_live_frame(&hword_buffer, frame_counter, hwords_in_frame, decode_mode)?;
-            }
-            
+        // Check if there's an incomplete frame in the sync engine
+        let current_buffer = sync_engine.current_buffer();
+        if !current_buffer.is_empty() {
+            warn!("⚠️ Incomplete frame at shutdown: {} bytes", current_buffer.len());
+
+            // Optionally write incomplete frame for debugging
             if save_files {
-                let filename = format!("{}/{:08X}.dsql", output_dir, frame_counter);
-                match std::fs::write(&filename, &hword_buffer) {
+                let filename = format!("{}/{:08X}_incomplete.dsql", output_dir, frame_counter);
+                match std::fs::write(&filename, current_buffer) {
                     Ok(_) => {
-                        info!("Created final frame file: {} ({} HWORDs, {:.1} KB)",
-                              filename, hwords_in_frame, hword_buffer.len() as f64 / 1024.0);
+                        info!("💾 Saved incomplete frame: {} ({} bytes)",
+                              filename, current_buffer.len());
                     }
                     Err(e) => {
-                        error!("Failed to write final frame file {}: {}", filename, e);
-                        file_write_errors += 1;
+                        error!("❌ Failed to write incomplete frame {}: {}", filename, e);
                     }
                 }
             }
-            frame_counter += 1;
         }
+
+        // Get sync engine statistics
+        let (frames_completed, sync_errors, header_index_errors) = sync_engine.stats();
 
         info!("📊 File writer final stats:");
         info!("   Total HWORDs processed: {}", total_hwords_processed);
-        info!("   Frames created: {}", frame_counter);
+        info!("   Frames completed: {}", frames_completed);
+        info!("   Frames written: {}", frame_counter);
+        info!("   Sync errors: {}", sync_errors);
+        info!("   Header index errors: {}", header_index_errors);
         info!("   File write errors: {}", file_write_errors);
 
         Ok(())

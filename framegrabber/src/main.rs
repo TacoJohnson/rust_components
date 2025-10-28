@@ -38,6 +38,7 @@ use clap::{Parser, Subcommand};
 mod config;
 mod gui;
 mod capture;
+mod frame_sync;
 
 use config::AppConfig;
 use gui::FrameGrabberGui;
