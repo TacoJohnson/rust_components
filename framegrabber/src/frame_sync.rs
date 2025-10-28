@@ -137,12 +137,13 @@ impl FrameSyncEngine {
     /// Each header HWORD contains 5 registers (16 bits each) in bits 79:0
     /// Register 2 is at bits 47:32 of the first header HWORD
     ///
-    /// NOTE: NUM_PIXELS_RW is a 16-bit register (max 65,535), but documentation mentions
-    /// imaging modes with up to 122,000 pixels. This may indicate:
-    /// - A scaling factor is applied
-    /// - Multiple registers are used
-    /// - Documentation inconsistency
-    /// For now, we extract the 16-bit value directly.
+    /// IMPORTANT: NUM_PIXELS_RW has a 2x scaling factor!
+    /// - The register stores HALF the actual pixel count
+    /// - For 122,000 pixels, NUM_PIXELS_RW = 61,000
+    /// - For 69,750 pixels, NUM_PIXELS_RW = 34,875
+    /// - For small scans (1-5 pixels), no scaling is applied
+    ///
+    /// This allows the 16-bit register (max 65,535) to represent up to 131,070 pixels.
     fn extract_num_pixels(first_header_hword: &HWord) -> Option<usize> {
         if !first_header_hword.control_bits.is_frame_start() {
             return None;
@@ -150,16 +151,27 @@ impl FrameSyncEngine {
 
         let data = first_header_hword.data_as_u128();
         // Register 2 is at bits 47:32 (third 16-bit register)
-        let num_pixels = ((data >> 32) & 0xFFFF) as usize;
+        let num_pixels_raw = ((data >> 32) & 0xFFFF) as usize;
 
-        // Sanity check: reasonable pixel count
-        // u16 max is 65,535, but doc mentions up to 122,000 for imaging
-        if num_pixels > 0 {
-            Some(num_pixels)
-        } else {
+        if num_pixels_raw == 0 {
             // Default to 1 pixel for 1-point scan mode if 0
-            Some(1)
+            return Some(1);
         }
+
+        // Apply 2x scaling factor for imaging modes (large pixel counts)
+        // For small scans (1-5 pixels), the register stores the actual count
+        // For imaging modes (>5 pixels), the register stores HALF the actual count
+        let num_pixels = if num_pixels_raw <= 5 {
+            // Small scan mode: use value directly (1-point, 5-point scans)
+            num_pixels_raw
+        } else {
+            // Imaging mode: apply 2x scaling factor
+            // Examples: 61,000 -> 122,000 pixels; 34,875 -> 69,750 pixels
+            num_pixels_raw * 2
+        };
+
+        debug!("NUM_PIXELS_RW: {} (raw) -> {} (actual)", num_pixels_raw, num_pixels);
+        Some(num_pixels)
     }
 
     /// Process a 12-byte HWORD chunk
