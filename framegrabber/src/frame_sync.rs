@@ -7,7 +7,7 @@ index validation instead of signature-based detection.
 */
 
 use tracing::{info, warn, debug};
-use shared::hword::{HWord, ControlBits};
+use shared::hword::HWord;
 use shared::protocol::HEADER_HWORDS_PER_FRAME;
 
 /// Idle HWORD pattern for initial synchronization (control bits = 111)
@@ -136,20 +136,29 @@ impl FrameSyncEngine {
     /// Extract NUM_PIXELS_RW from header (Register 2, which is in header HWORD 0)
     /// Each header HWORD contains 5 registers (16 bits each) in bits 79:0
     /// Register 2 is at bits 47:32 of the first header HWORD
+    ///
+    /// NOTE: NUM_PIXELS_RW is a 16-bit register (max 65,535), but documentation mentions
+    /// imaging modes with up to 122,000 pixels. This may indicate:
+    /// - A scaling factor is applied
+    /// - Multiple registers are used
+    /// - Documentation inconsistency
+    /// For now, we extract the 16-bit value directly.
     fn extract_num_pixels(first_header_hword: &HWord) -> Option<usize> {
         if !first_header_hword.control_bits.is_frame_start() {
             return None;
         }
-        
+
         let data = first_header_hword.data_as_u128();
         // Register 2 is at bits 47:32 (third 16-bit register)
-        let num_pixels = ((data >> 32) & 0xFFFF) as u16;
-        
+        let num_pixels = ((data >> 32) & 0xFFFF) as usize;
+
         // Sanity check: reasonable pixel count
-        if num_pixels > 0 && num_pixels <= 200_000 {
-            Some(num_pixels as usize)
+        // u16 max is 65,535, but doc mentions up to 122,000 for imaging
+        if num_pixels > 0 {
+            Some(num_pixels)
         } else {
-            None
+            // Default to 1 pixel for 1-point scan mode if 0
+            Some(1)
         }
     }
 

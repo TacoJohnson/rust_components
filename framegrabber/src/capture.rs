@@ -11,7 +11,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 use tokio::net::UdpSocket;
 use tokio::runtime::Runtime;
-use tracing::{info, warn, error, debug};
+use tracing::{info, warn, error};
 use crossbeam_channel::{bounded, Receiver, Sender};
 use shared::frame::Frame;
 use shared::coordinates::FieldWhitelist;
