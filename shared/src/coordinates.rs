@@ -237,9 +237,9 @@ pub fn extract_coordinates_from_hword(hword: &HWord, whitelist: &FieldWhitelist)
         point.z = Some(z_signed as f64 / COORDINATE_SCALE_FACTOR);
     }
     
-    // Extract Intensity (bits 87:72, 12 bits)
+    // Extract Intensity (bits 87:72, 16 bits)
     if whitelist.includes(&FieldType::Intensity) {
-        let intensity = ((data >> 72) & 0xFFF) as u16; // 12 bits
+        let intensity = ((data >> 72) & 0xFFFF) as u16; // 16 bits
         point.intensity = Some(intensity);
     }
     
