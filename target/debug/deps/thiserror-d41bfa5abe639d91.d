@@ -1,0 +1,10 @@
+C:\Users\nkocur\Desktop\Projects\Python\FINALEDIT\PyLDS\universal_instrument_control\rust_components\target\debug\deps\thiserror-d41bfa5abe639d91.d: C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\lib.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\aserror.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\display.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\var.rs
+
+C:\Users\nkocur\Desktop\Projects\Python\FINALEDIT\PyLDS\universal_instrument_control\rust_components\target\debug\deps\libthiserror-d41bfa5abe639d91.rlib: C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\lib.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\aserror.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\display.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\var.rs
+
+C:\Users\nkocur\Desktop\Projects\Python\FINALEDIT\PyLDS\universal_instrument_control\rust_components\target\debug\deps\libthiserror-d41bfa5abe639d91.rmeta: C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\lib.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\aserror.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\display.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\var.rs
+
+C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\lib.rs:
+C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\aserror.rs:
+C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\display.rs:
+C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\var.rs:

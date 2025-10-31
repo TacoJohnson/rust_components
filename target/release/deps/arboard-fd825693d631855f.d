@@ -1,0 +1,10 @@
+C:\Users\nkocur\Desktop\Projects\Python\FINALEDIT\PyLDS\universal_instrument_control\rust_components\target\release\deps\arboard-fd825693d631855f.d: C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\lib.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\common.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\platform\mod.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\platform\windows.rs
+
+C:\Users\nkocur\Desktop\Projects\Python\FINALEDIT\PyLDS\universal_instrument_control\rust_components\target\release\deps\libarboard-fd825693d631855f.rlib: C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\lib.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\common.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\platform\mod.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\platform\windows.rs
+
+C:\Users\nkocur\Desktop\Projects\Python\FINALEDIT\PyLDS\universal_instrument_control\rust_components\target\release\deps\libarboard-fd825693d631855f.rmeta: C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\lib.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\common.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\platform\mod.rs C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\platform\windows.rs
+
+C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\lib.rs:
+C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\common.rs:
+C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\platform\mod.rs:
+C:\Users\nkocur\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\arboard-3.6.1\src\platform\windows.rs:

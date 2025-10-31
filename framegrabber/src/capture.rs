@@ -543,7 +543,11 @@ impl SimpleFrameGrabber {
 
         // Add frame header HWORDs (required for file writer to detect frame boundaries)
         // FirstHeader HWORD
-        let first_header_data: u128 = (frame_number as u128) | ((points_per_frame as u128) << 32); // Frame number and pixel count
+        // IMPORTANT: Must include signature [0xF8, 0xDD, 0x42, 0x59] in bytes 8-11 (bits 31:0)
+        // for frame synchronization to detect the frame boundary
+        const FIRST_HDR_SIGNATURE: u32 = 0xF8DD4259;
+
+        let first_header_data: u128 = (FIRST_HDR_SIGNATURE as u128) | ((points_per_frame as u128) << 32); // Signature and pixel count
         let first_header_control = 2u8; // FirstHeader (010)
         let first_header_word = ((first_header_control as u128) << 93) | first_header_data;
         let mut first_header_hword = [0u8; 12];
@@ -586,8 +590,8 @@ impl SimpleFrameGrabber {
             let y_fixed = ((y * 1024.0) as i32).clamp(-262144, 262143) as u32 & 0x7FFFF;
             let z_fixed = ((z * 1024.0) as i32).clamp(-2097152, 2097151) as u32 & 0x3FFFFF;
 
-            // Synthetic intensity (12 bits)
-            let intensity = ((angle * 10.0).sin().abs() * 4095.0) as u16 & 0xFFF;
+            // Synthetic intensity (16 bits)
+            let intensity = ((angle * 10.0).sin().abs() * 65535.0) as u16 & 0xFFFF;
 
             // Determine control bits: FirstPixel (100 = 4) for first point, SubsequentPixel (101 = 5) for others
             let control_bits = if i == 0 { 4u8 } else { 5u8 }; // FirstPixel for first HWORD, SubsequentPixel for others
@@ -596,7 +600,7 @@ impl SimpleFrameGrabber {
             // Bits 23:0   = X coordinate (19 bits)
             // Bits 47:24  = Y coordinate (19 bits)
             // Bits 71:48  = Z coordinate (22 bits)
-            // Bits 87:72  = Intensity (12 bits)
+            // Bits 87:72  = Intensity (16 bits)
             // Bit 90      = Over-range flag (0)
             // Bit 91      = HG/LG flag (0)
             // Bit 92      = Parity (calculated)

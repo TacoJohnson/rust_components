@@ -237,9 +237,9 @@ pub fn extract_coordinates_from_hword(hword: &HWord, whitelist: &FieldWhitelist)
         point.z = Some(z_signed as f64 / COORDINATE_SCALE_FACTOR);
     }
     
-    // Extract Intensity (bits 87:72, 12 bits)
+    // Extract Intensity (bits 87:72, 16 bits)
     if whitelist.includes(&FieldType::Intensity) {
-        let intensity = ((data >> 72) & 0xFFF) as u16; // 12 bits
+        let intensity = ((data >> 72) & 0xFFFF) as u16; // 16 bits
         point.intensity = Some(intensity);
     }
     
@@ -290,23 +290,59 @@ mod tests {
             data: [0; 11],
             remaining_bits: 0,
         };
-        
+
         // Set some test coordinate data
         // X = 1024 (1.0 in fixed point), Y = 2048 (2.0), Z = 3072 (3.0)
         let test_data: u128 = 1024 | (2048 << 24) | (3072 << 48) | (100 << 72); // intensity = 100
-        
+
         // Pack the data into the HWORD
         for i in 0..11 {
             hword.data[i] = ((test_data >> (i * 8)) & 0xFF) as u8;
         }
         hword.remaining_bits = ((test_data >> 88) & 0xF) as u8;
-        
+
         let whitelist = FieldWhitelist::all();
         let point = extract_coordinates_from_hword(&hword, &whitelist).unwrap();
-        
+
         assert_eq!(point.x, Some(1.0));
         assert_eq!(point.y, Some(2.0));
         assert_eq!(point.z, Some(3.0));
         assert_eq!(point.intensity, Some(100));
+    }
+
+    #[test]
+    fn test_16bit_intensity_extraction() {
+        // Test that 16-bit intensity values are correctly extracted
+        let mut hword = HWord {
+            control_bits: ControlBits::FirstPixel,
+            parity: false,
+            data: [0; 11],
+            remaining_bits: 0,
+        };
+
+        // Test with maximum 16-bit intensity value (65535)
+        let test_data: u128 = 1024 | (2048 << 24) | (3072 << 48) | (65535u128 << 72);
+
+        // Pack the data into the HWORD
+        for i in 0..11 {
+            hword.data[i] = ((test_data >> (i * 8)) & 0xFF) as u8;
+        }
+        hword.remaining_bits = ((test_data >> 88) & 0xF) as u8;
+
+        let whitelist = FieldWhitelist::all();
+        let point = extract_coordinates_from_hword(&hword, &whitelist).unwrap();
+
+        // Verify maximum 16-bit intensity is correctly extracted
+        assert_eq!(point.intensity, Some(65535));
+
+        // Test with mid-range 16-bit value (32768)
+        let test_data2: u128 = 1024 | (2048 << 24) | (3072 << 48) | (32768u128 << 72);
+        for i in 0..11 {
+            hword.data[i] = ((test_data2 >> (i * 8)) & 0xFF) as u8;
+        }
+        hword.remaining_bits = ((test_data2 >> 88) & 0xF) as u8;
+
+        let point2 = extract_coordinates_from_hword(&hword, &whitelist).unwrap();
+        assert_eq!(point2.intensity, Some(32768));
     }
 }
